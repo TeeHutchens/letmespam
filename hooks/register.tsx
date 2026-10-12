@@ -42,7 +42,9 @@ export const register: Register = (on, options) => {
   let running: string | undefined // id of the model turn in flight, so typing can interrupt it
 
   on('session.start', async ($, e, next) => {
-    await update($, cfgAtom, () => initial)
+    const saved = await $.store.get('cfg')
+    if (saved && typeof saved === 'object') cfg = { ...initial, ...(saved as Partial<Cfg>) }
+    await update($, cfgAtom, () => cfg)
     await $.command.register({ name: 'spam-settings', description: 'Open the letmespam settings pane' })
 
     return next(e)
@@ -66,19 +68,11 @@ export const register: Register = (on, options) => {
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const { Box, Text, Input, Button } = $.ui.resolve(e) as Extract<ReturnType<typeof $.ui.resolve>, { Input: unknown }>
     const v = await read($, cfgAtom)
-    // live now; config.set also saves it for next session
+    // live now; the store keeps it for next session
     const set = async <K extends keyof Cfg>(k: K, val: Cfg[K]) => {
       cfg = { ...cfg, [k]: val }
       await update($, cfgAtom, () => cfg)
-      // one literal key per call: the directory reads config.set statically
-      const value = String(val)
-      if (k === 'enterWord') await $.config.set({ key: 'letmespam.enterWord', value })
-      else if (k === 'sendWord') await $.config.set({ key: 'letmespam.sendWord', value })
-      else if (k === 'cancelWord') await $.config.set({ key: 'letmespam.cancelWord', value })
-      else if (k === 'rewrite') await $.config.set({ key: 'letmespam.rewrite', value })
-      else if (k === 'optimizer') await $.config.set({ key: 'letmespam.optimizer', value })
-      else if (k === 'effort') await $.config.set({ key: 'letmespam.effort', value })
-      else await $.config.set({ key: 'letmespam.preamble', value })
+      await $.store.set('cfg', cfg)
     }
     const setWord = (k: keyof typeof WORDS) => (t: string) => set(k, squash(t) || WORDS[k])
     const known = MODELS.some(m => m.value === v.optimizer)

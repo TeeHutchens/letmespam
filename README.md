@@ -47,7 +47,7 @@ Batches under 200 characters skip the rewrite. If the optimizer fails, your text
 - It hooks your prompt box and holds spam-mode lines in memory for the session. Nothing is written to disk and no network calls are made by the plugin itself.
 - Only with rewrite on, `sendthespam` sends the batch to the optimizer model you chose, through your own Claude Code session, then sends the result as your prompt.
 - Its `prompt.submit` hook watches each line you submit: your start, send and discard words are swallowed into the batch, and every other prompt passes through unchanged.
-- The `/spam-settings` pane saves your choices with `config.set` under the plugin's own keys only: `letmespam.enterWord`, `sendWord`, `cancelWord`, `rewrite`, `optimizer`, `effort`, `preamble`. It sets no environment variables and touches no other configuration.
+- The `/spam-settings` pane saves your choices in the plugin's own key-value store (`$.store`), so they persist across sessions. It calls no `config.set`, sets no environment variables and touches no other configuration.
 - No telemetry, no files read, no commands run, no extra dependencies.
 
 ## Status
