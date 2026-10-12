@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="letmespam — a can labelled claude">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="letmespam">
   <title>letmespam</title>
   <defs>
     <linearGradient id="tin" x1="0" x2="1"><stop offset="0" stop-color="#b9bcc2"/><stop offset=".5" stop-color="#f4f5f7"/><stop offset="1" stop-color="#a9acb3"/></linearGradient>
-    <linearGradient id="body" x1="0" x2="1"><stop offset="0" stop-color="#b85a3c"/><stop offset=".45" stop-color="#d97757"/><stop offset="1" stop-color="#a94f33"/></linearGradient>
+    <linearGradient id="body" x1="0" x2="1"><stop offset="0" stop-color="#1f56d6"/><stop offset=".45" stop-color="#2b6fff"/><stop offset="1" stop-color="#1b49b8"/></linearGradient>
   </defs>
   <ellipse cx="200" cy="268" rx="150" ry="22" fill="#000" opacity=".12"/>
   <path d="M50 78 V236 a150 26 0 0 0 300 0 V78 Z" fill="url(#body)"/>
@@ -10,7 +10,6 @@
   <ellipse cx="200" cy="78" rx="128" ry="20" fill="none" stroke="#8a8d94" stroke-width="2"/>
   <path d="M50 96 a150 26 0 0 0 300 0" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="3"/>
   <path d="M50 226 a150 26 0 0 0 300 0" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="3"/>
-  <ellipse cx="200" cy="158" rx="118" ry="52" fill="#fbe9a8" stroke="#fff6d6" stroke-width="4"/>
-  <text x="200" y="176" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="58" fill="#8f3f27" letter-spacing="1">claude</text>
-  <text x="200" y="212" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="14" fill="#fff" letter-spacing="5">LETMESPAM</text>
+  <ellipse cx="200" cy="158" rx="124" ry="56" fill="#ffe27a" stroke="#fff3c4" stroke-width="4"/>
+  <text x="200" y="171" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="40" fill="#1b49b8" letter-spacing="1">letmespam</text>
 </svg>

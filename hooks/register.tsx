@@ -2,6 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
 
 const PANE = 'letmespam'
+const BLUE = '#2b6fff' // spam-tin blue
 // Aliases (haiku, sonnet, ...) always resolve to the newest model of that family, so new releases need no code change.
 const MODELS = [
   { value: 'off', label: 'Off — send as typed' },
@@ -20,6 +21,7 @@ const MIN_CHARS = 200 // below this a rewrite costs more than it saves
 const LOG_CHUNK = 1900 // ui.log draws only the first 2000 chars of a row
 type Cfg = import('../types').Cfg
 type Effort = Cfg['effort']
+const modeAtom = atom({ plugin: 'letmespam', key: 'mode' } as const, { on: false, count: 0 })
 const cfgAtom = atom({ plugin: 'letmespam', key: 'cfg' } as const, {
   ...WORDS, optimizer: 'haiku', effort: 'low', preamble: DEFAULT_PREAMBLE,
 } as Cfg)
@@ -73,52 +75,64 @@ export const register: Register = (on, options) => {
     const ei = EFFORTS.findIndex(f => f.value === v.effort)
     const step = (d: number) => set('effort', EFFORTS[Math.min(EFFORTS.length - 1, Math.max(0, ei + d))]!.value as Effort)
     // same look as Claude Code's /model: numbered list, ✔ on the current one, effort as dots
-    const Section = ({ title, hint, children }: { title: string; hint: string; children: unknown }) => (
-      <Box flexDirection="column" marginBottom={1}>
-        <Text bold>{title}</Text>
+    // plain helper, not a component: the ui table only takes its own elements
+    const section = (title: string, hint: string, kids: unknown[]) => (
+      <Box key={title} flexDirection="column" marginBottom={1}>
+        <Text bold color={BLUE}>{title}</Text>
         <Text dimColor>{hint}</Text>
-        <Box flexDirection="column" marginTop={1}>{children as never}</Box>
+        {kids as never}
       </Box>
     )
 
     return (
       <Box flexDirection="column" paddingX={1}>
-        <Section title="Select optimizer model" hint="Runs on send to condense your batch. Your chat model is still set with /model.">
-          {MODELS.map((m, i) => (
+        <Text bold color={BLUE}>▌ letmespam ▐</Text>
+        <Text> </Text>
+        {section('Select optimizer model', 'Runs on send to condense your batch. Your chat model is still set with /model.', [
+          ...MODELS.map((m, i) => (
             <Button key={m.value} hotkey={String(i + 1)} plain
               label={`${m.value === v.optimizer ? '❯' : ' '} ${i + 1}. ${m.label}${m.value === v.optimizer ? ' ✔' : ''}`}
               onPress={() => set('optimizer', m.value)} />
-          ))}
+          )),
           <Input key="custom" label={known ? '  Custom model id ' : '❯ Custom model id ✔ '} value={known ? '' : v.optimizer}
-            placeholder="any alias or full model id" onSubmit={t => t.trim() && set('optimizer', t.trim())} />
-        </Section>
-
-        <Section title="Effort" hint="How hard the optimizer thinks. Higher is slower and costs more.">
-          <Box>
-            <Text>{EFFORTS.map((f, i) => (i <= ei ? '●' : '○')).join(' ')}  </Text>
+            placeholder="any alias or full model id" onSubmit={t => t.trim() && set('optimizer', t.trim())} />,
+        ])}
+        {section('Effort', 'How hard the optimizer thinks. Higher is slower and costs more.', [
+          <Box key="dots">
+            <Text color={BLUE}>{EFFORTS.map((f, i) => (i <= ei ? '●' : '○')).join(' ')}  </Text>
             <Text bold>{v.effort}</Text>
-            <Text dimColor> effort</Text>
-          </Box>
-          <Box>
+          </Box>,
+          <Box key="btns">
             <Button key="lower" label="◀ lower" hotkey="h" onPress={() => step(-1)} />
             <Text> </Text>
             <Button key="higher" label="higher ▶" hotkey="l" onPress={() => step(1)} />
-          </Box>
-        </Section>
-
-        <Section title="Spam mode words" hint="Each is typed alone on a line. Every batched line is echoed in full in the transcript.">
-          <Input key="enter" label="Start   " value={v.enterWord} placeholder={WORDS.enterWord} onSubmit={setWord('enterWord')} />
-          <Input key="send" label="Send    " value={v.sendWord} placeholder={WORDS.sendWord} onSubmit={setWord('sendWord')} />
-          <Input key="cancel" label="Discard " value={v.cancelWord} placeholder={WORDS.cancelWord} onSubmit={setWord('cancelWord')} />
-        </Section>
-
-        <Section title="Instruction" hint="What the optimizer is told. Clear the field to restore the default.">
+          </Box>,
+        ])}
+        {section('Spam mode words', 'Each is typed alone on a line.', [
+          <Input key="enter" label="Start   " value={v.enterWord} placeholder={WORDS.enterWord} onSubmit={setWord('enterWord')} />,
+          <Input key="send" label="Send    " value={v.sendWord} placeholder={WORDS.sendWord} onSubmit={setWord('sendWord')} />,
+          <Input key="cancel" label="Discard " value={v.cancelWord} placeholder={WORDS.cancelWord} onSubmit={setWord('cancelWord')} />,
+        ])}
+        {section('Instruction', 'What the optimizer is told. Clear the field to restore the default.', [
           <Input key="preamble" label="Prompt  " value={v.preamble}
-            onSubmit={t => set('preamble', t.trim() || DEFAULT_PREAMBLE)} />
-        </Section>
-
+            onSubmit={t => set('preamble', t.trim() || DEFAULT_PREAMBLE)} />,
+        ])}
         <Text dimColor>1-{MODELS.length} pick model · h/l effort · Enter saves a field · Esc closes · batches under {MIN_CHARS} chars skip the rewrite</Text>
         <Text dimColor>Enjoying letmespam? ko-fi.com/teenottea</Text>
+      </Box>
+    )
+  })
+
+  // blue band above the prompt while a batch is open: you always know you're in letmespam
+  on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
+    const m = await read($, modeAtom)
+    if (!m.on || e.props.hasSurvey) return next(e)
+    const { Box, Text } = $.ui.resolve(e)
+
+    return (
+      <Box>
+        <Text bold inverse color={BLUE}> letmespam </Text>
+        <Text color={BLUE}> {m.count} batched · "{cfg.sendWord}" sends · "{cfg.cancelWord}" discards</Text>
       </Box>
     )
   })
@@ -128,64 +142,86 @@ export const register: Register = (on, options) => {
     const isMine = e.origin.kind === 'composer' && !e.text.startsWith('/')
     if (!isMine) return next(e)
 
+    const say = (text: string) => {
+      for (let i = 0; i < text.length || i === 0; i += LOG_CHUNK) $.ui.log(text.slice(i, i + LOG_CHUNK))
+    }
+    const show = (isOn: boolean) => update($, modeAtom, () => ({ on: isOn, count: parts.length }))
+    // a dropped line can leave its text in the input bar; empty it after the composer has finished with it
+    const swallow = (reason: string) => {
+      Promise.resolve().then(() => $.prompt.fill({ text: '', mode: 'replace' })).catch(() => {})
+      return { drop: reason }
+    }
+    const word = squash(e.text)
+    const isWord = word === cfg.enterWord || word === cfg.sendWord || word === cfg.cancelWord
+
     // typing while Claude is working interrupts it, then the line is handled as usual
-    if (running) {
+    // (a plain batched line in spam mode doesn't: it's only collected)
+    if (running && (!spam || isWord)) {
       $.turn.abort({ turnId: running }).catch(() => {}) // turn may have just ended
       running = undefined
     }
 
-    const say = (text: string) => {
-      for (let i = 0; i < text.length || i === 0; i += LOG_CHUNK) $.ui.log(text.slice(i, i + LOG_CHUNK))
-    }
-    const word = squash(e.text)
-
     if (!spam) {
       if (word !== cfg.enterWord) return next(e) // normal mode: send instantly
       spam = true
-      $.ui.status(`spam mode — "${cfg.sendWord}" sends, "${cfg.cancelWord}" discards`)
-      say(`▶ Spam mode ON. Enter as much as you like; nothing is sent until you type "${cfg.sendWord}" ("${cfg.cancelWord}" discards).`)
-      return { drop: 'spam mode on' }
+      void show(true)
+      $.ui.status(`letmespam — "${cfg.sendWord}" sends, "${cfg.cancelWord}" discards`)
+      say(`▌ letmespam ▐ ON. Enter as much as you like; nothing is sent until you type "${cfg.sendWord}" ("${cfg.cancelWord}" discards).`)
+      return swallow('spam mode on')
     }
 
     if (word === cfg.cancelWord) {
-      say(`✖ Spam mode OFF — discarded ${parts.length} batched line(s).`)
+      say(`▌ letmespam ▐ OFF — discarded ${parts.length} batched line(s).`)
       spam = false; parts = []
+      void show(false)
       $.ui.status(undefined)
-      return { drop: 'spam discarded' }
+      return swallow('spam discarded')
     }
 
     if (word === cfg.sendWord) {
       const raw = parts.join('\n\n')
       spam = false; parts = []
+      void show(false)
       if (!raw) {
         $.ui.status(undefined)
-        say('Spam mode OFF — nothing was batched.')
-        return { drop: 'empty batch' }
+        say('▌ letmespam ▐ OFF — nothing was batched.')
+        return swallow('empty batch')
       }
       void (async () => {
         let text = raw
-        if (cfg.optimizer !== 'off' && raw.length >= MIN_CHARS) {
-          $.ui.status(`optimizing with ${cfg.optimizer} (${cfg.effort})…`)
-          say(`⚙ Optimizing ${raw.length} chars with ${cfg.optimizer}, effort ${cfg.effort}…`)
-          const model = cfg.optimizer === 'session' ? await $.session.model() : cfg.optimizer
-          const r = await $.model.complete({
-            model, system: cfg.preamble, prompt: raw, effort: cfg.effort,
-            maxTokens: Math.min(4000, Math.ceil(raw.length / 3) + 200), // rewrite should never be longer than the input
-            timeoutMs: 30000,
-          })
-          if (r.isAnswered && r.text.trim()) text = r.text.trim()
-          else say('⚠ Optimizer failed — sending your text as typed.') // never lose the batch
+        try {
+          if (cfg.optimizer !== 'off' && raw.length >= MIN_CHARS) {
+            $.ui.status(`letmespam — optimizing with ${cfg.optimizer} (${cfg.effort})…`)
+            say(`⚙ Optimizing ${raw.length} chars with ${cfg.optimizer}, effort ${cfg.effort}…`)
+            const model = cfg.optimizer === 'session' ? await $.session.model() : cfg.optimizer
+            const r = await $.model.complete({
+              model, system: cfg.preamble, prompt: raw, effort: cfg.effort,
+              maxTokens: Math.min(4000, Math.ceil(raw.length / 3) + 200), // rewrite should never be longer than the input
+              timeoutMs: 30000,
+            })
+            if (r.isAnswered && r.text.trim()) text = r.text.trim()
+            else say('⚠ Optimizer failed — sending your text as typed.')
+          }
+        } catch {
+          say('⚠ Optimizer errored — sending your text as typed.') // never lose the batch
         }
         $.ui.status(undefined)
-        void $.prompt.submit({ text, asUser: true }) // appears in the transcript as the user's message, in full
+        try {
+          await $.prompt.submit({ text, asUser: true }) // appears in the transcript as the user's message, in full
+        } catch {
+          // couldn't send: put the batch back in the input bar so nothing is lost
+          say('⚠ Send failed — your text is back in the input bar, press Enter.')
+          await $.prompt.fill({ text, mode: 'replace' }).catch(() => {})
+        }
       })()
-      return { drop: 'sending spam' }
+      return swallow('sending spam')
     }
 
     parts.push(e.text)
-    $.ui.status(`spam mode — ${parts.length} batched, "${cfg.sendWord}" sends`)
+    void show(true)
+    $.ui.status(`letmespam — ${parts.length} batched, "${cfg.sendWord}" sends`)
     say(`┃ [${parts.length}] ${e.text}`)
 
-    return { drop: `batched (${parts.length})` }
+    return swallow(`batched (${parts.length})`)
   })
 }

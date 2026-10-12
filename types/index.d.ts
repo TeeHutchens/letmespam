@@ -5,6 +5,6 @@ export type Cfg = {
 
 declare module 'claude-code' {
   interface PluginState {
-    letmespam: { cfg: Cfg }
+    letmespam: { cfg: Cfg; mode: { on: boolean; count: number } }
   }
 }
