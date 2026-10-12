@@ -28,6 +28,10 @@ Or in one step:
 
 ## Settings
 
+Type `/spam-settings` to open the pane:
+
+<p align="center"><img src="assets/settings.gif" width="640" alt="/spam-settings pane: toggle rewrite, pick the model, raise effort"></p>
+
 `/spam-settings` opens a pane: the three trigger words, the optimizer model (`haiku`, `sonnet`, `opus`, `fable`, the session's model, or any model id; aliases track the newest release), the optimizer's effort, and its instruction.
 
 Batches under 200 characters skip the rewrite. If the optimizer fails, your text is sent as typed.
