@@ -58,7 +58,7 @@ export const register: Register = (on, options) => {
   })
 
   on('command.run', { command: 'spam-settings' }, async $ => {
-    await $.ui.open({ id: PANE, title: 'letmespam' })
+    await $.ui.open({ id: PANE, title: 'letmespam', focus: true })
 
     return { text: 'letmespam settings opened.' }
   })
