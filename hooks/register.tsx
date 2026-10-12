@@ -18,8 +18,8 @@ const DEFAULT_PREAMBLE =
   "Rewrite the user's raw thoughts as one concise, organized, prioritized request. Keep every detail, drop filler. Output only the rewrite."
 const MIN_CHARS = 200 // below this a rewrite costs more than it saves
 const LOG_CHUNK = 1900 // ui.log draws only the first 2000 chars of a row
-type Effort = 'low' | 'medium' | 'high' | 'xhigh' | 'max'
-type Cfg = typeof WORDS & { optimizer: string; effort: Effort; preamble: string }
+type Cfg = import('../types').Cfg
+type Effort = Cfg['effort']
 const cfgAtom = atom({ plugin: 'letmespam', key: 'cfg' } as const, {
   ...WORDS, optimizer: 'haiku', effort: 'low', preamble: DEFAULT_PREAMBLE,
 } as Cfg)
@@ -60,7 +60,7 @@ export const register: Register = (on, options) => {
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
-    const { Box, Text, Input, Button } = $.ui.resolve(e)
+    const { Box, Text, Input, Button } = $.ui.resolve(e) as Extract<ReturnType<typeof $.ui.resolve>, { Input: unknown }>
     const v = await read($, cfgAtom)
     // live now; config.set also saves it for next session
     const set = async <K extends keyof Cfg>(k: K, val: Cfg[K]) => {
@@ -71,7 +71,7 @@ export const register: Register = (on, options) => {
     const setWord = (k: keyof typeof WORDS) => (t: string) => set(k, squash(t) || WORDS[k])
     const known = MODELS.some(m => m.value === v.optimizer)
     const ei = EFFORTS.findIndex(f => f.value === v.effort)
-    const step = (d: number) => set('effort', EFFORTS[Math.min(EFFORTS.length - 1, Math.max(0, ei + d))].value as Effort)
+    const step = (d: number) => set('effort', EFFORTS[Math.min(EFFORTS.length - 1, Math.max(0, ei + d))]!.value as Effort)
     // same look as Claude Code's /model: numbered list, ✔ on the current one, effort as dots
     const Section = ({ title, hint, children }: { title: string; hint: string; children: unknown }) => (
       <Box flexDirection="column" marginBottom={1}>
