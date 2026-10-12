@@ -18,7 +18,10 @@ const DEFAULT_PREAMBLE =
   "Rewrite the user's raw thoughts as one concise, organized, prioritized request. Keep every detail, drop filler. Output only the rewrite."
 const MIN_CHARS = 200 // below this a rewrite costs more than it saves
 const LOG_CHUNK = 1900 // ui.log draws only the first 2000 chars of a row
-type Cfg = import('../types').Cfg
+type Cfg = {
+  enterWord: string; sendWord: string; cancelWord: string
+  rewrite: 'on' | 'off'; optimizer: string; effort: 'low' | 'medium' | 'high' | 'xhigh' | 'max'; preamble: string
+}
 type Effort = Cfg['effort']
 // batch lives in the host (an atom), not in module variables: a plugin reload must not forget an open batch
 const batchAtom = atom({ plugin: 'letmespam', key: 'batch' } as const, { on: false, parts: [] as string[] })
@@ -67,7 +70,15 @@ export const register: Register = (on, options) => {
     const set = async <K extends keyof Cfg>(k: K, val: Cfg[K]) => {
       cfg = { ...cfg, [k]: val }
       await update($, cfgAtom, () => cfg)
-      await $.config.set({ key: `letmespam.${k}`, value: val })
+      // one literal key per call: the directory reads config.set statically
+      const value = String(val)
+      if (k === 'enterWord') await $.config.set({ key: 'letmespam.enterWord', value })
+      else if (k === 'sendWord') await $.config.set({ key: 'letmespam.sendWord', value })
+      else if (k === 'cancelWord') await $.config.set({ key: 'letmespam.cancelWord', value })
+      else if (k === 'rewrite') await $.config.set({ key: 'letmespam.rewrite', value })
+      else if (k === 'optimizer') await $.config.set({ key: 'letmespam.optimizer', value })
+      else if (k === 'effort') await $.config.set({ key: 'letmespam.effort', value })
+      else await $.config.set({ key: 'letmespam.preamble', value })
     }
     const setWord = (k: keyof typeof WORDS) => (t: string) => set(k, squash(t) || WORDS[k])
     const known = MODELS.some(m => m.value === v.optimizer)
