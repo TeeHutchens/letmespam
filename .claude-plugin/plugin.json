@@ -1,0 +1,46 @@
+{
+  "name": "letmespam",
+  "version": "1.0.0",
+  "types": "./types/index.d.ts",
+  "description": "Two modes: normal sends instantly; say the start word for spam mode, batch freely (every line echoed in full), then say the send word to optimize with a model of your choice and send.",
+  "userConfig": {
+    "preamble": {
+      "type": "string",
+      "title": "Optimizer instruction",
+      "description": "System prompt for the optimizer model. Empty = built-in.",
+      "default": ""
+    },
+    "optimizer": {
+      "type": "string",
+      "title": "Optimizer model",
+      "description": "off, an alias (haiku, sonnet, opus, fable \u2014 always the newest of that family), session, or a full model id.",
+      "default": "haiku"
+    },
+    "enterWord": {
+      "type": "string",
+      "title": "Start word",
+      "description": "Type alone on a line to enter spam mode.",
+      "default": "letmespam"
+    },
+    "sendWord": {
+      "type": "string",
+      "title": "Send word",
+      "description": "Type alone on a line to send the batch.",
+      "default": "sendthespam"
+    },
+    "cancelWord": {
+      "type": "string",
+      "title": "Discard word",
+      "description": "Type alone on a line to discard the batch.",
+      "default": "cancelspam"
+    },
+    "effort": {
+      "type": "string",
+      "title": "Optimizer effort",
+      "description": "low, medium, high, xhigh or max.",
+      "default": "low"
+    }
+  },
+  "repository": "https://github.com/teehutchens/letmespam",
+  "license": "MIT"
+}
