@@ -8,7 +8,7 @@ A Claude Code plugin with two input modes, so you can get every thought out befo
 
 - **Normal (default):** messages send instantly.
 - **Spam mode:** type `letmespam`, then enter as many lines as you like. Nothing is sent. Every line is echoed in full in the transcript.
-- **Send:** type `sendthespam`. A cheap model condenses the batch into one tight request, then it's sent, so your main model reads less.
+- **Send:** type `sendthespam`. The batch goes out as one message. With rewrite turned on (`/spam-settings`), a cheap model condenses it first, so your main model reads less.
 - **Discard:** type `cancelspam` to throw the batch away.
 
 Typing while Claude is working interrupts it, and `letmespam` works at any time.
@@ -32,13 +32,25 @@ Type `/spam-settings` to open the pane:
 
 <p align="center"><img src="assets/settings.gif" width="640" alt="/spam-settings pane: toggle rewrite, pick the model, raise effort"></p>
 
-`/spam-settings` opens a pane: the three trigger words, the optimizer model (`haiku`, `sonnet`, `opus`, `fable`, the session's model, or any model id; aliases track the newest release), the optimizer's effort, and its instruction.
+The pane has:
+
+- **Rewrite on send:** off by default. On, a model condenses the batch before it's sent.
+- **Optimizer model:** `haiku` (default), `sonnet`, `opus`, `fable`, `session` (your chat model), or any model id. Aliases track the newest release.
+- **Effort:** how hard the optimizer thinks, `low` to `max`.
+- **Spam mode words:** change the start, send and discard words.
+- **Rewrite instruction:** what the optimizer is told, with a reset to the built-in text.
 
 Batches under 200 characters skip the rewrite. If the optimizer fails, your text is sent as typed.
 
+## What it runs and sends
+
+- It hooks your prompt box and holds spam-mode lines in memory for the session. Nothing is written to disk and no network calls are made by the plugin itself.
+- Only with rewrite on, `sendthespam` sends the batch to the optimizer model you chose, through your own Claude Code session, then sends the result as your prompt.
+- No telemetry, no files read, no commands run, no extra dependencies.
+
 ## Status
 
-Needs a Claude Code build with the inline plugin API (`claude-code` hooks). Types are in `.claude-plugin/types`.
+Needs a Claude Code build with the inline plugin API (`claude-code` hooks). Types are in `types/`.
 
 MIT licensed.
 

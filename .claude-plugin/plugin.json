@@ -1,8 +1,12 @@
 {
   "name": "letmespam",
-  "version": "1.0.2",
+  "version": "1.0.3",
+  "author": {
+    "name": "TeeHutchens",
+    "url": "https://github.com/teehutchens"
+  },
   "types": "./types/index.d.ts",
-  "description": "Two modes: normal sends instantly; say the start word for spam mode, batch freely (every line echoed in full), then say the send word to optimize with a model of your choice and send.",
+  "description": "Batch your thoughts before Claude starts working: say letmespam, type as many lines as you like, then sendthespam sends them as one message (optionally condensed by a cheap model).",
   "userConfig": {
     "preamble": {
       "type": "string",

@@ -1,13 +1,19 @@
 {
   "name": "letmespam",
   "owner": {
-    "name": "letmespam"
+    "name": "TeeHutchens",
+    "url": "https://github.com/teehutchens"
   },
   "plugins": [
     {
       "name": "letmespam",
       "source": "./",
-      "description": "Two modes: normal sends instantly; say the start word for spam mode, batch freely (every line echoed in full), then say the send word to optimize with a model of your choice and send."
+      "description": "Batch your thoughts before Claude starts working: say letmespam, type as many lines as you like, then sendthespam sends them as one message (optionally condensed by a cheap model).",
+      "author": {
+        "name": "TeeHutchens",
+        "url": "https://github.com/teehutchens"
+      }
     }
-  ]
+  ],
+  "description": "Batch your thoughts before Claude starts working: say letmespam, type as many lines as you like, then sendthespam sends them as one message (optionally condensed by a cheap model)."
 }
