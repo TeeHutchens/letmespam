@@ -1,6 +1,6 @@
 {
   "name": "letmespam",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "types": "./types/index.d.ts",
   "description": "Two modes: normal sends instantly; say the start word for spam mode, batch freely (every line echoed in full), then say the send word to optimize with a model of your choice and send.",
   "userConfig": {
