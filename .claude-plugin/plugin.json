@@ -1,6 +1,6 @@
 {
   "name": "letmespam",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "types": "./types/index.d.ts",
   "description": "Two modes: normal sends instantly; say the start word for spam mode, batch freely (every line echoed in full), then say the send word to optimize with a model of your choice and send.",
   "userConfig": {
@@ -13,7 +13,7 @@
     "optimizer": {
       "type": "string",
       "title": "Optimizer model",
-      "description": "off, an alias (haiku, sonnet, opus, fable \u2014 always the newest of that family), session, or a full model id.",
+      "description": "off, an alias (haiku, sonnet, opus, fable — always the newest of that family), session, or a full model id.",
       "default": "haiku"
     },
     "enterWord": {
@@ -39,6 +39,16 @@
       "title": "Optimizer effort",
       "description": "low, medium, high, xhigh or max.",
       "default": "low"
+    },
+    "rewrite": {
+      "type": "string",
+      "title": "Rewrite on send",
+      "description": "on: a model condenses the batch before sending. off (default): send exactly as typed.",
+      "default": "off",
+      "options": [
+        "off",
+        "on"
+      ]
     }
   },
   "repository": "https://github.com/teehutchens/letmespam",

@@ -2,6 +2,8 @@
 
 # letmespam
 
+<p align="center"><img src="assets/demo.gif" width="720" alt="letmespam demo: batch lines, then sendthespam sends them as one message"></p>
+
 A Claude Code plugin with two input modes, so you can get every thought out before Claude starts working.
 
 - **Normal (default):** messages send instantly.
@@ -16,6 +18,12 @@ Typing while Claude is working interrupts it, and `letmespam` works at any time.
 ```
 /plugin marketplace add teehutchens/letmespam
 /plugin install letmespam
+```
+
+Or in one step:
+
+```
+/plugin install letmespam --marketplace teehutchens/letmespam
 ```
 
 ## Settings
